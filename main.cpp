@@ -24,29 +24,38 @@ struct list{
           delete p;
         }
     }
-    void Add(int coefficent,int degree){
-        list * pointer, *p;
+    void Set(int coefficent,int degree){
+        if(coefficent!=0){
+        list * pointer;
+        pointer=(list*)malloc(sizeof(list));
         pointer->coefficent=coefficent;
         pointer->degree=degree;
-        pointer->next= new list;
-        pointer->next=this->head->next;
-        this->head->next=pointer;
-    
+        pointer->next= this->head;
+        this->head=pointer;
+        }
     }
     void Print(){
-        while(this->head){
-            std::cout<<"Экран "<<head->coefficent<<"x^"<<head->degree<<"+";
+        if(head) {
+            cout<<head->coefficent<<"x^"<<head->degree;
+            head=head->next;}
+        while(head){
+            if (head->coefficent) cout<<"+";
+            cout<<head->coefficent<<"x^"<<head->degree;     
+            head=head->next;   
+        }
+    }
+    void Derivative(){
+        while(head){
+            cout<<"\n"<<head->coefficent*head->degree<<"x^"<<head->degree-1;
             head=head->next;
         }
-
     }
 };
 int main(){
     Equalization A(1,1);
+    A.Set(2,2);
+    A.Set(3,3);
     A.Print();
-    A.Add(2,2);
-    A.Print();
-    A.Add(3,3);
-    A.Print();
+    A.Derivative();
 
 }
