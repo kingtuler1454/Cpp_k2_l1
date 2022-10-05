@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <window.h>
 #include <cmath>
 using namespace std;
 /* конструктор с параметрами: начальную степень многочлена;
@@ -60,7 +61,7 @@ public:
     void Print(){
         list *StartHead=head;
         bool FirstStart=true;
-        cout<<"Наша последовательность: ";
+        cout<<"\nНаша последовательность: ";
         while(head){
             if(!FirstStart &&head->coefficent >0&&head->degree!=0) cout<<"+";
             if(head->coefficent!=1) cout<<head->coefficent; 
@@ -106,35 +107,82 @@ public:
     {
         list *StartHeadA=head;
         list *StartHeadB=src.head;
-        while(head){
-            while(src.head){
-            if(head->degree==src.head->degree)
-            {
-                head->coefficent+=src.head->coefficent;
-                break;
+        bool SearchSuccesesful;
+        while(src.head){
+            SearchSuccesesful=false;
+            while(head){
+                if(head->degree==src.head->degree)
+                    {
+                        SearchSuccesesful=true;
+                        head->coefficent+=src.head->coefficent;
+                        break;
+                    }
+                head=head->next;
             }
+            if(!SearchSuccesesful)
+            {   cout<<"dsf";
+                list * pointer;
+                pointer=(list*)malloc(sizeof(list));
+                pointer->coefficent=src.head->coefficent;
+                pointer->degree=src.head->degree;
+                pointer->next=StartHeadA;
+                StartHeadA=pointer;
+            }
+            head=StartHeadA;
             src.head=src.head->next;
-            }
-            src.head=StartHeadB;
-            head=head->next;
         }
+        src.head=StartHeadB;
         head=StartHeadA;
     }
+   
 };
 int main(){
-    Equalization A(-1,1);
-    A.Set(1,3);
-    A.Set(-2,3);
+    double coefficent, degree;
+    int vibor;
+    cout<<"Многочлен пока не создан, введите коэффицент первого элемента: "<<endl;
+    cin>>coefficent;
+    cout<<"Введите его степень: "<<endl;
+    cin>>degree;
+    Equalization A(coefficent,degree);
     A.Print();
-    //A.Derivative();
-    A.Print();
-   // A.Multiplication(4.5);
-    A.Print();
-    A.Calculation(5);
-    A.Print();
-    Equalization B(-1,1);
-    B.Set(-2,3);
-    B.Set(-33,2);
-    A.Sum(B);
-    A.Print();
+    bool flag=true;
+    while(flag){
+    cout<<"Выберите действие:\n1)Добавить новый элемент\n2)Умножить на скаляр\n3)Вычислить х\n4)Найти производную\n5)Сумма с другим многочленом\n6)Вычесть из него другой многочлен\n7)Средактировать коэффицент\n";
+    cin>>vibor;
+    switch (vibor)
+    {
+    case 1:
+        cout<<"Введите коэффицент нового элемента: "<<endl;
+        cin>>coefficent;
+        cout<<"Введите его степень: "<<endl;
+        cin>>degree;
+        A.Set(coefficent,degree);
+        
+    case 2:
+        cout<<"Введите значение на которое хотите умножить: "<<endl;
+        cin>>degree;
+        A.Multiplication(degree);
+        break;
+    case 3:
+        cout<<"Введите значение х: "<<endl;
+        cin>>degree;
+        A.Calculation(degree);
+        break;
+    case 4:
+        A.Derivative();
+        break;
+    case 5:
+        /* code */
+        break;
+    case 6/* constant-expression */:
+        /* code */
+        break;
+    case 7/* constant-expression */:
+        /* code */
+        break;
+    default:
+        break;
+    system("CLS");
+    }}
+    
 }
