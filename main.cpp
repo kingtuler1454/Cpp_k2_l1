@@ -70,7 +70,7 @@ public:
         list *deleted=head;
         head=head->next;
         free(deleted);
-        return 0;
+        return 1;
     }
     if(head->next &&(head->next)->degree==degree)// если не голова
         {
@@ -79,11 +79,11 @@ public:
             pred->next=head->next;
             free(head);
             head=StartHead;
-            return 0;
+            return 1;
             }
     head=head->next;
   }
-  cout<<"\nНет такого элемента:(\n";
+   cout<<"Нет такого элемента :(\n";
    head=StartHead;
    return 0; 
   }
@@ -92,10 +92,16 @@ public:
         bool FirstStart=true;
         cout<<"\nНаша последовательность: ";
         while(head){
+            if(head->coefficent==0)
+            {
+                DeleteElement(head->degree);
+                StartHead=head;
+                FirstStart=true;
+            }
             if(!FirstStart &&head->coefficent >0) cout<<"+";
             if(head->coefficent!=1) cout<<head->coefficent; 
             if(head->degree!=0)cout<<"x";
-            
+            if(head->degree==0 && head->coefficent==1) cout<<head->coefficent;
             if(head->degree<0){cout<<"^("<<head->degree<<")";}
             else if(head->degree!=1 &&head->degree!=0) cout<<"^"<<head->degree;    
             head=head->next;
@@ -109,7 +115,6 @@ public:
         while(head){
             head->coefficent=head->coefficent*head->degree;
             head->degree--;
-            if(head->degree==0) head->coefficent=0;   
             head=head->next;   
         }
         head=StartHead;
@@ -157,7 +162,7 @@ public:
                 pointer=(list*)malloc(sizeof(list));
                 if(SumOperation)
                     pointer->coefficent=src.head->coefficent;//+++++++++
-                else  pointer->coefficent=src.head->coefficent;
+                else  pointer->coefficent=src.head->coefficent*(-1);
                 pointer->degree=src.head->degree;
                 pointer->next=StartHeadA;
                 StartHeadA=pointer;
