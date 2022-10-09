@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <iostream>
-#include <window.h>
 #include <cmath>
 using namespace std;
 /* конструктор с параметрами: начальную степень многочлена;
@@ -20,10 +19,12 @@ struct list{
 } *head;
 public:
     Equalization (double coefficent,double degree){ 
-    this->head=(struct list*)malloc(sizeof(struct list));
-    this->head->degree = degree;
-    this->head->coefficent=coefficent;
-    this->head->next = NULL; // это последний узел списка
+    if(coefficent!=0){ 
+        this->head=(struct list*)malloc(sizeof(struct list));
+        this->head->degree = degree;
+        this->head->coefficent=coefficent;
+        this->head->next = NULL; // это последний узел списка
+    }
     }
     ~Equalization(){
         list *p;
@@ -49,23 +50,52 @@ public:
     void Set(double coefficent,double degree)
     {
         if (!DetectOldDegree(coefficent,degree))
-        {if(coefficent!=0){
-        list * pointer;
-        pointer=(list*)malloc(sizeof(list));
-        pointer->coefficent=coefficent;
-        pointer->degree=degree;
-        pointer->next= this->head;
-        this->head=pointer;
+            {
+                if(coefficent!=0){
+                    list * pointer;
+                    pointer=(list*)malloc(sizeof(list));
+                    pointer->coefficent=coefficent;
+                    pointer->degree=degree;
+                    pointer->next= this->head;
+                    this->head=pointer;
         }}
     }
+    int DeleteElement(double degree)
+{
+    list *StartHead=head;
+    while(head)
+  {
+    if(head->degree==degree) // если голова
+    {
+        list *deleted=head;
+        head=head->next;
+        free(deleted);
+        return 0;
+    }
+    if(head->next &&(head->next)->degree==degree)// если не голова
+        {
+            list *pred=head;
+            head=head->next;
+            pred->next=head->next;
+            free(head);
+            head=StartHead;
+            return 0;
+            }
+    head=head->next;
+  }
+  cout<<"\nНет такого элемента:(\n";
+   head=StartHead;
+   return 0; 
+  }
     void Print(){
         list *StartHead=head;
         bool FirstStart=true;
         cout<<"\nНаша последовательность: ";
         while(head){
-            if(!FirstStart &&head->coefficent >0&&head->degree!=0) cout<<"+";
+            if(!FirstStart &&head->coefficent >0) cout<<"+";
             if(head->coefficent!=1) cout<<head->coefficent; 
             if(head->degree!=0)cout<<"x";
+            
             if(head->degree<0){cout<<"^("<<head->degree<<")";}
             else if(head->degree!=1 &&head->degree!=0) cout<<"^"<<head->degree;    
             head=head->next;
@@ -78,7 +108,8 @@ public:
         list *StartHead=head;
         while(head){
             head->coefficent=head->coefficent*head->degree;
-            head->degree--;   
+            head->degree--;
+            if(head->degree==0) head->coefficent=0;   
             head=head->next;   
         }
         head=StartHead;
@@ -103,7 +134,7 @@ public:
         head=StartHead;
         cout <<"При x="<<x<<" значение последовательности равно "<<sum<<endl;
     }
-    void Sum(Equalization &src)
+    void Sum(Equalization &src,bool SumOperation)
     {
         list *StartHeadA=head;
         list *StartHeadB=src.head;
@@ -114,16 +145,19 @@ public:
                 if(head->degree==src.head->degree)
                     {
                         SearchSuccesesful=true;
-                        head->coefficent+=src.head->coefficent;
+                        if(SumOperation) head->coefficent+=src.head->coefficent;
+                        else head->coefficent-=src.head->coefficent;
                         break;
                     }
                 head=head->next;
             }
             if(!SearchSuccesesful)
-            {   cout<<"dsf";
+            {   
                 list * pointer;
                 pointer=(list*)malloc(sizeof(list));
-                pointer->coefficent=src.head->coefficent;
+                if(SumOperation)
+                    pointer->coefficent=src.head->coefficent;//+++++++++
+                else  pointer->coefficent=src.head->coefficent;
                 pointer->degree=src.head->degree;
                 pointer->next=StartHeadA;
                 StartHeadA=pointer;
@@ -144,45 +178,61 @@ int main(){
     cout<<"Введите его степень: "<<endl;
     cin>>degree;
     Equalization A(coefficent,degree);
-    A.Print();
+    
     bool flag=true;
     while(flag){
-    cout<<"Выберите действие:\n1)Добавить новый элемент\n2)Умножить на скаляр\n3)Вычислить х\n4)Найти производную\n5)Сумма с другим многочленом\n6)Вычесть из него другой многочлен\n7)Средактировать коэффицент\n";
+    A.Print();
+    cout<<"Выберите действие:\n1)Добавить новый элемент\n2)Умножить на скаляр\n3)Вычислить х\n4)Найти производную\n5)Сумма с другим многочленом\n6)Вычесть из него другой многочлен\n7)Средактировать коэффицент\n8)Удалить элемент\n";
     cin>>vibor;
-    switch (vibor)
+    if (vibor==1)
     {
-    case 1:
         cout<<"Введите коэффицент нового элемента: "<<endl;
         cin>>coefficent;
         cout<<"Введите его степень: "<<endl;
         cin>>degree;
         A.Set(coefficent,degree);
-        
-    case 2:
+    }    
+    else if(vibor==2){
         cout<<"Введите значение на которое хотите умножить: "<<endl;
         cin>>degree;
         A.Multiplication(degree);
-        break;
-    case 3:
+    }
+    else if(vibor==3){
         cout<<"Введите значение х: "<<endl;
         cin>>degree;
         A.Calculation(degree);
-        break;
-    case 4:
+    }
+    else if(vibor==4){
         A.Derivative();
-        break;
-    case 5:
-        /* code */
-        break;
-    case 6/* constant-expression */:
-        /* code */
-        break;
-    case 7/* constant-expression */:
-        /* code */
-        break;
-    default:
-        break;
+    }
+    else if(vibor==5 || vibor==6){
+        bool SumOperation=false;
+        if(vibor==5) SumOperation=true; 
+        Equalization B(0,0);
+        do{
+        cout<<"Выберите коэффицент элемента нового многочлена: ";
+        cin>>coefficent;
+        cout<<"Выберите степень элемента нового многочлена: ";
+        cin>>degree;
+        B.Set(coefficent,degree);
+        cout<<"Добавить еще один элемент к многочлену? \n1)Да\n2)Нет";
+        cin>>vibor;
+        }
+        while(vibor==1);
+        A.Sum(B, SumOperation);
+    }
+    else if(vibor==7){}
+    else if(vibor==8){
+        cout<<"Выберите степень элемента который удаляем: ";
+        cin>>degree;
+        A.DeleteElement(degree);
+    }
+    else if(vibor==9){
+        flag=false;
+    }
+    else{
     system("CLS");
-    }}
+    }
+    }
     
 }
