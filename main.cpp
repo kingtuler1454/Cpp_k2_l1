@@ -83,7 +83,6 @@ public:
             }
     head=head->next;
   }
-   cout<<"Нет такого элемента :(\n";
    head=StartHead;
    return 0; 
   }
@@ -173,7 +172,23 @@ public:
         src.head=StartHeadB;
         head=StartHeadA;
     }
-   
+   int operator[](double degree)
+   {
+        list * StartHead=head;
+        while (head){
+            if (head->degree==degree)
+            {
+                cout<<"Введите новый коэффицент степени "<<head->degree<<": ";
+                cin>>head->coefficent;
+                head=StartHead;
+                return 0;
+            }
+            head=head->next;
+        }
+        cout<<"Нет такой степени :( \n";
+        head=StartHead;
+        return 0;    
+   }
 };
 int main(){
     double coefficent, degree;
@@ -186,8 +201,9 @@ int main(){
     
     bool flag=true;
     while(flag){
+    A.DeleteElement(0);
     A.Print();
-    cout<<"Выберите действие:\n1)Добавить новый элемент\n2)Умножить на скаляр\n3)Вычислить х\n4)Найти производную\n5)Сумма с другим многочленом\n6)Вычесть из него другой многочлен\n7)Средактировать коэффицент\n8)Удалить элемент\n";
+    cout<<"Выберите действие:\n1)Добавить новый элемент\n2)Умножить на скаляр\n3)Вычислить х\n4)Найти производную\n5)Сумма с другим многочленом\n6)Вычесть из него другой многочлен\n7)Средактировать коэффицент\n8)Удалить элемент\n9)Выход\n";
     cin>>vibor;
     if (vibor==1)
     {
@@ -226,7 +242,11 @@ int main(){
         while(vibor==1);
         A.Sum(B, SumOperation);
     }
-    else if(vibor==7){}
+    else if(vibor==7){
+        cout<<"Выберите степень элемента который редактируем: ";
+        cin>>degree;
+        A[degree];
+    }
     else if(vibor==8){
         cout<<"Выберите степень элемента который удаляем: ";
         cin>>degree;
