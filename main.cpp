@@ -34,17 +34,17 @@ public:
           delete p;
         }
     }
+    list *GetHead(){return head;}
+
     bool DetectOldDegree(double coefficent,double degree){
-        list *StartHead=head;
+        list *FunctionHead=GetHead();
         int index;
-        while(head){
-            if (head->degree==degree) {
-                head->coefficent=+coefficent;
-                cout<<"\nСтепени "<<head->degree<<" просуммирован  коэффицент "<<head->coefficent<<endl;   
-                head=StartHead;
+        while(FunctionHead){
+            if (FunctionHead->degree==degree) {
+                FunctionHead->coefficent=coefficent;
+                cout<<"\nСтепени "<<FunctionHead->degree<<" изменён  коэффицент на "<<FunctionHead->coefficent<<endl;   
                 return true;}
-            head=head->next;   }
-        head=StartHead;
+            FunctionHead=FunctionHead->next;}
         return false;    
     }
     void Set(double coefficent,double degree)
@@ -62,98 +62,93 @@ public:
     }
     int DeleteElement(double degree)
 {
-    list *StartHead=head;
-    while(head)
+    list *FunctionHead=GetHead();
+    while(FunctionHead)
   {
-    if(head->degree==degree) // если голова
+    if(FunctionHead->degree==degree) // если голова или конечный
     {
-        list *deleted=head;
-        head=head->next;
+        list *deleted=FunctionHead;
+        if(FunctionHead->next)FunctionHead=FunctionHead->next; // если не последний элемент
         free(deleted);
         return 1;
     }
-    if(head->next &&(head->next)->degree==degree)// если не голова
+    if(FunctionHead->next &&(FunctionHead->next)->degree==degree)// если не голова
         {
-            list *pred=head;
-            head=head->next;
-            pred->next=head->next;
-            free(head);
-            head=StartHead;
+            list *pred=FunctionHead;
+            FunctionHead=FunctionHead->next;
+            pred->next=FunctionHead->next;
+            free(FunctionHead);
             return 1;
             }
-    head=head->next;
+    FunctionHead=FunctionHead->next;
   }
-   head=StartHead;
    return 0; 
   }
     void Print(){
-        list *StartHead=head;
+        list *FunctionHead=GetHead();
         bool FirstStart=true;
-        cout<<"\nНаша последовательность: ";
-        while(head){
-            if(head->coefficent==0)
+        cout<<"\nНаша последовательность: ";w
+        while(FunctionHead){
+            if(FunctionHead->coefficent==0)
             {
-                DeleteElement(head->degree);
-                StartHead=head;
+                DeleteElement(FunctionHead->degree);
                 FirstStart=true;
             }
-            if(!FirstStart &&head->coefficent >0) cout<<"+";
-            if(head->coefficent!=1) cout<<head->coefficent; 
-            if(head->degree!=0)cout<<"x";
-            if(head->degree==0 && head->coefficent==1) cout<<head->coefficent;
-            if(head->degree<0){cout<<"^("<<head->degree<<")";}
-            else if(head->degree!=1 &&head->degree!=0) cout<<"^"<<head->degree;    
-            head=head->next;
-            FirstStart=false;   
+            if(!FirstStart &&FunctionHead->coefficent >0) cout<<"+";
+            if(FunctionHead->coefficent!=1) cout<<FunctionHead->coefficent; 
+            if(FunctionHead->degree!=0) cout<<"x";
+            else cout<<FunctionHead->coefficent;
+            if(FunctionHead->degree<0){cout<<"^("<<FunctionHead->degree<<")";}
+            else if(FunctionHead->degree!=1 &&FunctionHead->degree!=0) cout<<"^"<<FunctionHead->degree;    
+            FunctionHead=FunctionHead->next;
+            FirstStart=false;
+               
         }
         cout<<"\n";
-        head=StartHead;
     }
     void Derivative(){
-        list *StartHead=head;
-        while(head){
-            head->coefficent=head->coefficent*head->degree;
-            head->degree--;
-            head=head->next;   
+        list *FunctionHead=GetHead();
+        while(FunctionHead){
+            FunctionHead->coefficent*=FunctionHead->degree;
+            FunctionHead->degree--;
+            cout<<FunctionHead->coefficent<<"x^"<<FunctionHead->degree;  
+            FunctionHead=FunctionHead->next;    
         }
-        head=StartHead;
         cout<<"\nПроизводная высчитана...\n";
     }
     void Multiplication(double value){
-        list *StartHead=head;
-        while(head){
-            head->coefficent=head->coefficent*value;
-            head=head->next;   
+        list *FunctionHead=GetHead();
+        while(FunctionHead){
+            FunctionHead->coefficent=FunctionHead->coefficent*value;
+            FunctionHead=FunctionHead->next;   
         }
-        head=StartHead;
         cout<<"\nСкалярное произведение высчитано...\n";
     }
     void Calculation(double x){
-        list *StartHead=head;
+        list *FunctionHead=GetHead();
         double sum=0;
-        while(head){
-            sum+=head->coefficent*pow(x,head->degree);
-            head=head->next;
+        while(FunctionHead){
+            sum+=FunctionHead->coefficent*pow(x,FunctionHead->degree);
+            FunctionHead=FunctionHead->next;
         }
-        head=StartHead;
         cout <<"При x="<<x<<" значение последовательности равно "<<sum<<endl;
     }
     void Sum(Equalization &src,bool SumOperation)
     {
-        list *StartHeadA=head;
+        list *FunctionHead=GetHead();
         list *StartHeadB=src.head;
         bool SearchSuccesesful;
         while(src.head){
             SearchSuccesesful=false;
-            while(head){
-                if(head->degree==src.head->degree)
+            while(FunctionHead){
+                if(FunctionHead->degree==src.head->degree)
                     {
                         SearchSuccesesful=true;
-                        if(SumOperation) head->coefficent+=src.head->coefficent;
-                        else head->coefficent-=src.head->coefficent;
+                        if(SumOperation) FunctionHead->coefficent+=src.head->coefficent;
+                        else FunctionHead->coefficent-=src.head->coefficent;
                         break;
                     }
-                head=head->next;
+                FunctionHead=FunctionHead->next;
             }
             if(!SearchSuccesesful)
             {   
@@ -163,30 +158,26 @@ public:
                     pointer->coefficent=src.head->coefficent;//+++++++++
                 else  pointer->coefficent=src.head->coefficent*(-1);
                 pointer->degree=src.head->degree;
-                pointer->next=StartHeadA;
-                StartHeadA=pointer;
+                pointer->next=GetHead();
+                head=pointer;
             }
-            head=StartHeadA;
             src.head=src.head->next;
         }
         src.head=StartHeadB;
-        head=StartHeadA;
     }
-   int operator[](double degree)
+    int operator[](double degree)
    {
-        list * StartHead=head;
-        while (head){
-            if (head->degree==degree)
+        list * FunctionHead=GetHead();
+        while (FunctionHead){
+            if (FunctionHead->degree==degree)
             {
-                cout<<"Введите новый коэффицент степени "<<head->degree<<": ";
-                cin>>head->coefficent;
-                head=StartHead;
+                cout<<"Введите новый коэффицент степени "<<FunctionHead->degree<<": ";
+                cin>>FunctionHead->coefficent;
                 return 0;
             }
-            head=head->next;
+            FunctionHead=FunctionHead->next;
         }
         cout<<"Нет такой степени :( \n";
-        head=StartHead;
         return 0;    
    }
 };
