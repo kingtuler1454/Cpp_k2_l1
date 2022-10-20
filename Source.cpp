@@ -11,19 +11,18 @@ using namespace std;
 */
 class Equalization
 {
-    int count = 0;
+public:
     struct list {
         double degree;
         double coefficent;
         list* next;
     } *head;
-public:
+    
     Equalization(double coefficent, double degree) {
         if (coefficent != 0) {
-            this->head = (struct list*)malloc(sizeof(struct list));
+            this->head = new list;
             this->head->degree = degree;
             this->head->coefficent = coefficent;
-            this->count= 1;
             this->head->next = NULL; // это последний узел списка
         }
     }
@@ -39,7 +38,6 @@ public:
 
     bool DetectOldDegree(double coefficent, double degree) {
         list* FunctionHead = GetHead();
-        int index;
         while (FunctionHead) {
             if (FunctionHead->degree == degree) {
                 FunctionHead->coefficent = coefficent;
@@ -56,14 +54,14 @@ public:
         {
             if (coefficent != 0) {
                 list* pointer;
-                pointer = (list*)malloc(sizeof(list));
+                pointer = new list;
                 pointer->coefficent = coefficent;
                 pointer->degree = degree;
                 pointer->next = this->head;
                 this->head = pointer;
             }
         }
-        this->count++;
+
     }
     int DeleteElement(double degree)
     {
@@ -75,7 +73,6 @@ public:
                 list* deleted = FunctionHead;
                 if (FunctionHead->next)FunctionHead = FunctionHead->next; // если не последний элемент
                 delete deleted;
-                this->count--;
                 return 1;
             }
             else if (FunctionHead->next )// если не голова
@@ -93,28 +90,7 @@ public:
         }
         return 0;
     }
-    void Print() {
-        list* FunctionHead = GetHead();
-        bool FirstStart = true;
-        cout << "\nНаша последовательность: "; 
-            while (FunctionHead) {
-                if (FunctionHead->coefficent == 0)
-                {
-                    DeleteElement(FunctionHead->degree);
-                    FirstStart = true;
-                }
-                if (!FirstStart && FunctionHead->coefficent > 0) cout << "+";
-                if (FunctionHead->coefficent != 1) cout << FunctionHead->coefficent;
-                if (FunctionHead->degree != 0) cout << "x";
-                else cout << FunctionHead->coefficent;
-                if (FunctionHead->degree < 0) { cout << "^(" << FunctionHead->degree << ")"; }
-                else if (FunctionHead->degree != 1 && FunctionHead->degree != 0) cout << "^" << FunctionHead->degree;
-                FunctionHead = FunctionHead->next;
-                FirstStart = false;
-
-            }
-        cout << "\n";
-    }
+    
     void Derivative() {
         list* FunctionHead = GetHead();
         while (FunctionHead) {
@@ -142,7 +118,7 @@ public:
         }
         cout << "При x=" << x << " значение последовательности равно " << sum << endl;
     }
-    void Sum(Equalization& src, bool SumOperation)
+    void operator -(Equalization& src)
     {
         list* FunctionHead = GetHead();
         list* StartHeadB = src.head;
@@ -153,8 +129,8 @@ public:
                 if (FunctionHead->degree == src.head->degree)
                 {
                     SearchSuccesesful = true;
-                    if (SumOperation) FunctionHead->coefficent += src.head->coefficent;
-                    else FunctionHead->coefficent -= src.head->coefficent;
+                    FunctionHead->coefficent -= src.head->coefficent;
+
                     break;
                 }
                 FunctionHead = FunctionHead->next;
@@ -162,10 +138,39 @@ public:
             if (!SearchSuccesesful)
             {
                 list* pointer;
-                pointer = (list*)malloc(sizeof(list));
-                if (SumOperation)
-                    pointer->coefficent = src.head->coefficent;//+++++++++
-                else  pointer->coefficent = src.head->coefficent * (-1);
+                pointer = new list;
+                pointer->coefficent = src.head->coefficent * (-1);
+                pointer->degree = src.head->degree;
+                pointer->next = GetHead();
+                head = pointer;
+            }
+            src.head = src.head->next;
+        }
+        src.head = StartHeadB;
+    }
+    void operator +(Equalization& src)
+    {
+        list* FunctionHead = GetHead();
+        list* StartHeadB = src.head;
+        bool SearchSuccesesful;
+        while (src.head) {
+            SearchSuccesesful = false;
+            while (FunctionHead) {
+                if (FunctionHead->degree == src.head->degree)
+                {
+                    SearchSuccesesful = true;
+                    FunctionHead->coefficent += src.head->coefficent;
+                    
+                    break;
+                }
+                FunctionHead = FunctionHead->next;
+            }
+            if (!SearchSuccesesful)
+            {
+                list* pointer;
+                pointer = new list;
+                pointer->coefficent = src.head->coefficent;//+++++++++
+
                 pointer->degree = src.head->degree;
                 pointer->next = GetHead();
                 head = pointer;
@@ -184,7 +189,7 @@ public:
                 cout << "Введите новый коэффицент степени " << FunctionHead->degree << ": ";
                 cin >> coefficent;
                 if (coefficent != 0) {
-                    FunctionHead->coefficent;
+                    FunctionHead->coefficent=coefficent;
                 }
                 else { cout << "Нельзя поменять на ноль"; }
                 return 0;
@@ -194,7 +199,30 @@ public:
         cout << "Нет такой степени :( \n";
         return 0;
     }
+    friend ostream& operator<<(ostream& os, Equalization obj);
 };
+ostream& operator<<(ostream& os,Equalization obj)
+{
+    bool FirstStart = true;
+    cout << "\nНаша последовательность: ";
+    while (obj.head) {
+        if (obj.head->coefficent == 0)
+        {
+            obj.DeleteElement(obj.head->degree);
+            FirstStart = true;
+        }
+        if (!FirstStart && obj.head->coefficent > 0) cout << "+";
+        if (obj.head->coefficent != 1) cout << obj.head->coefficent;
+        if (obj.head->degree != 0) cout << "x";
+        else cout << obj.head->coefficent;
+        if (obj.head->degree < 0) { cout << "^(" << obj.head->degree << ")"; }
+        else if (obj.head->degree != 1 && obj.head->degree != 0) cout << "^" << obj.head->degree;
+        obj.head = obj.head->next;
+        FirstStart = false;
+    }
+    cout << "\n";
+    return os;
+}
 class PolynominalError : public exception
 {
 protected:
@@ -213,25 +241,6 @@ protected:
     }
 };
 
-class MemoryError : PolynominalError
-{
-public:
-    MemoryError(const char* Message)
-    {
-        SetMessage(Message);
-        PrintInfo();
-    }
-};
-
-class RangeError : PolynominalError
-{
-public:
-    RangeError(const char* Message)
-    {
-        SetMessage(Message);
-        PrintInfo();
-    }
-};
 
 int main() {
     double coefficent, degree;
@@ -246,7 +255,7 @@ int main() {
     bool flag = true;
     while (flag) {
         A.DeleteElement(0);
-        A.Print();
+        cout<<A;
         cout << "Выберите действие:\n1)Добавить новый элемент\n2)Умножить на скаляр\n3)Вычислить х\n4)Найти производную\n5)Сумма с другим многочленом\n6)Вычесть из него другой многочлен\n7)Средактировать коэффицент\n8)Удалить элемент\n9)Выход\n";
         cin >> vibor;
         if (vibor == 1)
@@ -283,7 +292,8 @@ int main() {
                 cout << "Добавить еще один элемент к многочлену? \n1)Да\n2)Нет";
                 cin >> vibor;
             } while (vibor == 1);
-            A.Sum(B, SumOperation);
+            if (SumOperation) A + B;
+            else A - B;
         }
         else if (vibor == 7) {
             cout << "Выберите степень элемента который редактируем: ";
@@ -301,6 +311,7 @@ int main() {
         else {
             system("CLS");
         }
+       
     }
 
 }
